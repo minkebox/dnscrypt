@@ -1,7 +1,5 @@
 #! /bin/bash
 
-SERVER1="https://one.one.one.one/dns-query"
-
 #
 # Encodes https://... DoH URLs as SDNS://... URLs
 #
@@ -58,9 +56,9 @@ if [ "${SERVER1}" != "" ]; then
       SERVER1=$(encode "${SERVER1}")
       ;;
   esac
-  s1="[static.'_primary']
+  s1="[static.'primary']
 stamp = '${SERVER1}'"
-  servers="'_primary'"
+  servers="'primary'"
   if [ "${SERVER2}" != "" ]; then
     case "${SERVER2}" in
       sdns://*)
@@ -69,9 +67,9 @@ stamp = '${SERVER1}'"
         SERVER2=$(encode "${SERVER2}")
         ;;
     esac
-    s2="[static.'_secondary']
+    s2="[static.'secondary']
 stamp = '${SERVER2}'"
-    servers="'_primary','_secondary'"
+    servers="'primary','secondary'"
   fi
 fi
 
@@ -85,7 +83,8 @@ fi
 
 # Generate configuration
 cat > /etc/dnscrypt-proxy/dnscrypt-proxy.toml <<__EOF__
-max_clients = 250
+listen_addresses = ['0.0.0.0:53']
+max_clients = 256
 ipv4_servers = true
 ipv6_servers = ${ipv6_servers}
 block_ipv6 = ${block_ipv6}
@@ -101,15 +100,7 @@ cert_refresh_delay = 240
 blocked_query_response = 'refused'
 ignore_system_dns = true
 use_syslog = false
-log_files_max_size = 1
-log_files_max_age = 1
-log_files_max_backups = 1
-cache = true
-cache_size = 1024
-cache_min_ttl = 2400
-cache_max_ttl = 86400
-cache_neg_min_ttl = 60
-cache_neg_max_ttl = 600
+cache = false
 netprobe_timeout = 60
 server_names = [ ${servers} ]
 ${s1}
