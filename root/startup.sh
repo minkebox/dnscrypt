@@ -8,13 +8,10 @@ encode() {
   url=$(echo $1 | sed -e s,$proto,,g)
   hostport=$(echo $url | cut -d/ -f1)
   host="$(echo $hostport | sed -e 's,:.*,,g')"
-  port="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+  port="$(echo $hostport | sed -e s,^$host,,)"
   path="/$(echo $url | grep / | cut -d/ -f2-)"
 
-  if [ "$port" != "" ]; then
-    port=":$port"
-  fi
-  #echo $host $port $path
+  #echo $hostport $host $port $path
 
   arr=(02 06 00 00 00 00 00 00 00)
   arr+=($(printf %02x ${#port}))
